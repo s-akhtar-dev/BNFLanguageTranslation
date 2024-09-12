@@ -22,6 +22,7 @@ void languageTranslationSolvableParser(const vector<string>& words, const vector
 
 string calculateVariableAnswer(string operation, vector<int>& numbers);
 string calculateSolvableAnswer(string operation, vector<int>& numbers);
+string calculateUniqueInstance(string operation, vector<int>& numbers, bool isReversed);
 
 bool isValidateRegexNumber(const string& integerStatement);
 bool isValidateRegexVariable(const string& variableStatement);
@@ -30,68 +31,10 @@ bool isValidateRegexOperator(const string& operatorStatement);
 string getOppositeOperation(string operation);
 
 void languageTranslationInitialization() {
-    vector<string> testCases = {
-        "60 + Fox = 10",
-        // "x = 10 + 5",
-        // "6 = Variable - 9",
-        // "52 + 8 = 60",
-        // "54 + 90 = 12",
-        // "Fox + 8 = 37",
-        // "x = 10 + 5",
-        // "15 - y = 7",
-        // "a * 3 = 21",
-        // "100 / b = 4",
-        // "2 + 2 = 5",
-        // "10 - 5 = 5",
-        // "3 * 4 = 12",
-        // "20 / 5 = 4",
-        // "variable1 + 10 = 30",
-        // "50 - variable2 = 25",
-        "6 * variable3 = 42",
-        "100 / variable4 = 20",
-        "7 + 3 = answer",
-        "difference = 20 - 8",
-        "product = 5 * 6",
-        "72 / quotient = 9",
-        "1 + 1 = one",
-        "ten - 5 = five",
-        "dozen * 2 = twenty_four",
-        "hundred / century = 1",
-        "x + y = z",
-        "10 = 5 + 5",
-        "15 = variable - 5",
-        "8 = 2 * four",
-        "25 = hundred / 4",
-        "result = 17 - 9",
-        "6 * multiplier = 36",
-        "81 / divisor = 9",
-        "2 + 2 = four",
-        "twelve - x = 7",
-        "3 * y = fifteen",
-        "sixty / z = 6",
-        "a + b = c + d",
-        "10 - x = x",
-        "2 * y = y + y",
-        "100 / z = z",
-        "1 + 1 = 3 - 1",
-        "5 * 5 = 100 / 4",
-        "18 / 3 = 3 * 2",
-        "x + 1 = x - 1",
-        "2 ^ 3 = 8"
-    };
-
     string statement;
     cout << "Welcome! Press 'X' at any time to exit." << endl;
     cout << "Enter a Statement: ";
     getline(cin, statement);
-
-    for (string testCase : testCases) {
-        cout << testCase << endl;
-        vector<string> words = languageTranslationSeparator(testCase);
-        vector<string> tokens = languageTranslationScanner(words);
-        languageTranslationParser(words, tokens);
-        cout << endl;
-    }
 
     while (statement != "X" && statement != "x") {
         vector<string> words = languageTranslationSeparator(statement);
@@ -113,7 +56,7 @@ vector<string> languageTranslationSeparator(const string& statement) {
     for (char character : statement) {
         if (!isspace(character)) {
             word.push_back(character);
-        } else if (!word.empty()) {
+        } else {
             spaceCount++;
             words.push_back(word);
             word.clear();
@@ -203,8 +146,7 @@ void languageTranslationSolvableParser(const vector<string>& words, const vector
         //60 = Fox + 10 -> 50 //60 + Fox = 10 -> -50
         //15 - y = 7 -> 8     //100 / b = 4 -> 25
         vector<int> numbers = {stoi(words[0]), stoi(words[4])};
-        string alteredOperation = (!isReversed && numbers[0] > numbers[1]) ? getOppositeOperation(operation) : operation;
-        string result = calculateVariableAnswer(alteredOperation, numbers);
+        string result = calculateUniqueInstance(operation, numbers, isReversed);
         cout << words[2] << " is " << result << endl;
 
     } else if (tokens[0] == "number" && tokens[2] == "number" && tokens[4] == "variable") {
@@ -227,10 +169,25 @@ string calculateVariableAnswer(string operation, vector<int>& numbers) {
         return to_string(numbers[0] + numbers[1]);
     } else if (operation == "*") {
         if (numbers[1] == 0) return "Error: Division by zero";
-        return to_string(numbers[0] / numbers[1]);
+        return to_string(static_cast<double>(numbers[0]) / numbers[1]);
     } else if (operation == "/") {
         if (numbers[0] == 0) return "Error: Division by zero";
         return to_string(numbers[0] * numbers[1]);
+    }
+    return "Error: Calculation Error";
+}
+
+string calculateUniqueInstance(string operation, vector<int>& numbers, bool isReversed) {
+    if (operation == "+") {
+        return to_string(!isReversed ? numbers[1] - numbers[0] : numbers[0] - numbers[1]);
+    } else if (operation == "-") {
+        return to_string(!isReversed ? numbers[0] - numbers[1] : numbers[0] + numbers[1]);
+    } else if (operation == "*") {
+        if (numbers[1] == 0) return "Error: Division by zero";
+        return to_string(!isReversed ? static_cast<double>(numbers[1]) / numbers[0] : static_cast<double>(numbers[0]) / numbers[1]);
+    } else if (operation == "/") {
+        if (numbers[0] == 0) return "Error: Division by zero";
+        return to_string(!isReversed ? static_cast<double>(numbers[0]) / numbers[1] : static_cast<double>(numbers[0]) * numbers[1]);
     }
     return "Error: Calculation Error";
 }
@@ -244,7 +201,7 @@ string calculateSolvableAnswer(string operation, vector<int>& numbers) {
         return to_string(numbers[0] * numbers[1]);
     } else if (operation == "/") {
         if (numbers[1] == 0) return "Error: Division by zero";
-        return to_string(numbers[0] / numbers[1]);
+        return to_string(static_cast<double>(numbers[0]) / numbers[1]);
     }
     return "Error: Calculation Error";
 }
