@@ -142,7 +142,6 @@ void languageTranslationSolvableParser(const vector<string>& words, const vector
             calcResult = calculateSolvableOutput(operation, firstNumber, secondNumber);
             cout << (stoi(calcResult) == stoi(thirdNumber) ? "True Statement" : "Invalid Statement") << endl;
         }
-
     } else if (tokens.at(0) == "variable" && tokens.at(2) == "number" && tokens.at(4) == "number") {
         if (!isReversed && (operation == "+" || operation == "*")) {
             calcResult = calculateSolvableOutput(getDifferentOperation(operation), thirdNumber, secondNumber);
@@ -154,7 +153,6 @@ void languageTranslationSolvableParser(const vector<string>& words, const vector
             calcResult = calculateSolvableOutput(operation, secondNumber, thirdNumber);
         }
         cout << firstNumber << " is " << calcResult << endl;
-
     } else if (tokens.at(0) == "number" && tokens.at(2) == "variable" && tokens.at(4) == "number") {
         if ((!isReversed && (operation == "+" || operation == "*")) || (isReversed && (operation == "-" || operation == "/"))) {
             calcResult = calculateSolvableOutput(getDifferentOperation(operation), thirdNumber, firstNumber);
@@ -164,7 +162,6 @@ void languageTranslationSolvableParser(const vector<string>& words, const vector
             calcResult = calculateSolvableOutput(operation, firstNumber, thirdNumber);
         }
         cout << secondNumber << " is " << calcResult << endl;
-
     } else if (tokens.at(0) == "number" && tokens.at(2) == "number" && tokens.at(4) == "variable") {
         if (!isReversed && ((operation == "+" || operation == "*") || (operation == "-" || operation == "/"))) {
             calcResult = calculateSolvableOutput(operation, firstNumber, secondNumber);
@@ -174,7 +171,6 @@ void languageTranslationSolvableParser(const vector<string>& words, const vector
             calcResult = calculateSolvableOutput(getDifferentOperation(operation), firstNumber, secondNumber);
         }
         cout << thirdNumber << " is " << calcResult << endl;
-
     } else {
         cout << "Unsolvable" << endl;
     }
@@ -229,7 +225,11 @@ void languageTranslationExampleCases() {
 
         // Example Case #6: Syntactically Valid, Unsolvable Cases
         "Fox = Fox + 10", "Fox = Fox - 60", "Fox = Fox * 10", "Fox = Fox / 60",
+        "Fox + Fox = 10", "Fox - Fox = 60", "Fox * Fox = 10", "Fox / Fox = 60",
+        "10 = Fox + Fox", "60 = Fox - Fox", "10 = Fox * Fox", "60 = Fox / Fox",
         "10 + Fox = Fox", "60 - Fox = Fox", "10 * Fox = Fox", "60 / Fox = Fox",
+        "Fox + 60 = Fox", "Fox - 60 = Fox", "Fox * 60 = Fox", "Fox / 60 = Fox",
+        "Fox = 60 + Fox", "Fox = 60 - Fox", "Fox = 60 * Fox", "Fox = 60 / Fox",
         "Fox = Fox + Fox", "Fox = Fox - Fox", "Fox = Fox * Fox", "Fox = Fox / Fox",
         "Fox + Fox = Fox", "Fox + Fox = Fox", "Fox - Fox = Fox", "Fox - Fox = Fox",
         "-------------",
