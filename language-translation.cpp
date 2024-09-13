@@ -12,30 +12,38 @@
 #include <regex>
 using namespace std;
 
+//
 void languageTranslationInitialization();
 
+//
 vector<string> languageTranslationSeparator(const string& statement);
 vector<string> languageTranslationScanner(const vector<string>& words);
 
+//
 void languageTranslationParser(const vector<string>& words, const vector<string>& tokens);
 void languageTranslationSolvableParser(const vector<string>& words, const vector<string>& tokens, bool isReversed);
 
+//
 string calculateVariableAnswer(string operation, vector<int>& numbers);
 string calculateSolvableAnswer(string operation, vector<int>& numbers);
 string calculateUniqueInstance(string operation, vector<int>& numbers, bool isReversed);
 
+//
 bool isValidateRegexNumber(const string& integerStatement);
 bool isValidateRegexVariable(const string& variableStatement);
 bool isValidateRegexOperator(const string& operatorStatement);
 
+//
 string getOppositeOperation(string operation);
 void languageTranslationExampleCases();
 
+//
 int main() {
     languageTranslationInitialization();
     return 0;
 }
 
+//
 void languageTranslationInitialization() {
     //Can use this to test example cases
     languageTranslationExampleCases();
@@ -56,6 +64,7 @@ void languageTranslationInitialization() {
     }
 }
 
+//
 vector<string> languageTranslationSeparator(const string& statement) {
     string word;
     int spaceCount = 0;
@@ -76,6 +85,7 @@ vector<string> languageTranslationSeparator(const string& statement) {
     return words;
 }
 
+//
 vector<string> languageTranslationScanner(const vector<string>& words) {
     vector<string> tokens;
 
@@ -96,21 +106,25 @@ vector<string> languageTranslationScanner(const vector<string>& words) {
     return tokens;
 }
 
+//
 bool isValidateRegexNumber(const string& integerStatement) {
     regex validNumber("^[0-9]+$");
     return regex_match(integerStatement, validNumber);
 }
 
+//
 bool isValidateRegexVariable(const string& variableStatement) {
     regex validVariable("^[_a-zA-Z][_a-zA-Z0-9]*$");
     return regex_match(variableStatement, validVariable);
 }
 
+//
 bool isValidateRegexOperator(const string& operatorStatement) {
     regex validOperator("[+\\-*/]");
     return regex_match(operatorStatement, validOperator);
 }
 
+//
 void languageTranslationParser(const vector<string>& words, const vector<string>& tokens) {
     if (tokens.size() != 5) {
         cout << "Syntax Error: Invalid regular expression" << endl;
@@ -132,6 +146,7 @@ void languageTranslationParser(const vector<string>& words, const vector<string>
     languageTranslationSolvableParser(words, tokens, isReversed);
 }
 
+//
 void languageTranslationSolvableParser(const vector<string>& words, const vector<string>& tokens, bool isReversed) {
     string operation = isReversed ? words[3] : words[1];
 
@@ -162,6 +177,7 @@ void languageTranslationSolvableParser(const vector<string>& words, const vector
     }
 }
 
+//
 string calculateVariableAnswer(string operation, vector<int>& numbers) {
     if (operation == "+") {
         return to_string(numbers[0] - numbers[1]);
@@ -177,6 +193,7 @@ string calculateVariableAnswer(string operation, vector<int>& numbers) {
     return "Error: Calculation Error";
 }
 
+//
 string calculateUniqueInstance(string operation, vector<int>& numbers, bool isReversed) {
     if (operation == "+") {
         return to_string(!isReversed ? numbers[1] - numbers[0] : numbers[0] - numbers[1]);
@@ -192,6 +209,7 @@ string calculateUniqueInstance(string operation, vector<int>& numbers, bool isRe
     return "Error: Calculation Error";
 }
 
+//
 string calculateSolvableAnswer(string operation, vector<int>& numbers) {
     if (operation == "+") {
         return to_string(numbers[0] + numbers[1]);
@@ -206,6 +224,7 @@ string calculateSolvableAnswer(string operation, vector<int>& numbers) {
     return "Error: Calculation Error";
 }
 
+//
 string getOppositeOperation(string operation) {
     if (operation == "+") { return "-"; }
     else if (operation == "-") { return "+"; }
@@ -214,6 +233,7 @@ string getOppositeOperation(string operation) {
     else { return operation; }
 }
 
+//
 void languageTranslationExampleCases() {
     vector<string> testCases = {
         // Example Case #1: Num op Var eq Num OR Num eq Var op Num
@@ -239,7 +259,7 @@ void languageTranslationExampleCases() {
 
         // Example Case #4: Num op Num eq Num OR Num eq Num op Num
         "90 = 10 + 10", "90 = 80 + 10", "90 = 10 - 2", "90 = 100 - 10",
-        "90 * 10 = 10", "90 * 10 = 900", "90 / 10 = 20", "90 / 10 = 9"
+        "90 * 10 = 10", "90 * 10 = 900", "90 / 10 = 20", "90 / 10 = 9",
 
         // Example Case #5: Invalid Cases (Operators, Equal, Spaces)
         "10 = 60 = Fox", "Fox = 10 = 60", "Fox = 60 = Fox", "Fox = 10 = Fox",
