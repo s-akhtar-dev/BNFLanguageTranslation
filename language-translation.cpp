@@ -1,19 +1,19 @@
 /*
-* COMP 141 Assignment 3 Submission
+ * COMP 141 Assignment 3 Submission: BNF (Backus-Naur Form) Evaluator
  * Professor: Dr. Cliburn
- * Teammates: Sarah Akhtar, Kieran Monks
+ * Authors: Sarah Akhtar, Kieran Monks
  * Date: September 10th, 2024
- * Description:
+ * Purpose: Characterizes BNF Statements
  */
 
 #include <iostream>
 #include <string>
-#include <cctype>
 #include <vector>
 #include <regex>
 using namespace std;
 
 void languageTranslationInitialization();
+
 vector<string> languageTranslationSeparator(const string& statement);
 vector<string> languageTranslationScanner(const vector<string>& words);
 
@@ -29,8 +29,17 @@ bool isValidateRegexVariable(const string& variableStatement);
 bool isValidateRegexOperator(const string& operatorStatement);
 
 string getOppositeOperation(string operation);
+void languageTranslationExampleCases();
+
+int main() {
+    languageTranslationInitialization();
+    return 0;
+}
 
 void languageTranslationInitialization() {
+    //Can use this to test example cases
+    languageTranslationExampleCases();
+
     string statement;
     cout << "Welcome! Press 'X' at any time to exit." << endl;
     cout << "Enter a Statement: ";
@@ -39,7 +48,6 @@ void languageTranslationInitialization() {
     while (statement != "X" && statement != "x") {
         vector<string> words = languageTranslationSeparator(statement);
         vector<string> tokens = languageTranslationScanner(words);
-
         languageTranslationParser(words, tokens);
         cout << endl;
 
@@ -127,31 +135,23 @@ void languageTranslationParser(const vector<string>& words, const vector<string>
 void languageTranslationSolvableParser(const vector<string>& words, const vector<string>& tokens, bool isReversed) {
     string operation = isReversed ? words[3] : words[1];
 
-    //DONE
     if (tokens[0] == "number" && tokens[2] == "number" && tokens[4] == "number") {
-        vector<int> numbers = {stoi(words[0]), stoi(words[2])};
+        vector<int> numbers = {stoi(words[isReversed ? 2 : 0]), stoi(words[isReversed ? 4 : 2])};
         string result = calculateSolvableAnswer(operation, numbers);
-        cout << (result == words[4] ? "True Statement" : "Invalid Statement") << endl;
+        cout << (result == words[isReversed ? 0 : 4] ? "True Statement" : "Invalid Statement") << endl;
 
     } else if (tokens[0] == "variable" && tokens[2] == "number" && tokens[4] == "number") {
-        //Fox = 8 + 37 -> 45 //Fox + 8 = 37 -> 29
-        //Fox = 37 + 8 -> 45 //Fox + 37 = 8 -> -29
         vector<int> numbers = {stoi(words[isReversed ? 2 : 4]), stoi(words[isReversed ? 4 : 2])};
         string alteredOperation = isReversed ? getOppositeOperation(operation) : operation;
         string result = calculateVariableAnswer(alteredOperation, numbers);
         cout << words[0] << " is " << result << endl;
 
     } else if (tokens[0] == "number" && tokens[2] == "variable" && tokens[4] == "number") {
-        //10 = Fox + 60 -> -50 //10 + Fox = 60 -> 50
-        //60 = Fox + 10 -> 50 //60 + Fox = 10 -> -50
-        //15 - y = 7 -> 8     //100 / b = 4 -> 25
         vector<int> numbers = {stoi(words[0]), stoi(words[4])};
         string result = calculateUniqueInstance(operation, numbers, isReversed);
         cout << words[2] << " is " << result << endl;
 
     } else if (tokens[0] == "number" && tokens[2] == "number" && tokens[4] == "variable") {
-        //10 = 60 + Fox -> -50 //10 + 60 = Fox -> 70
-        //60 = 10 + Fox -> 50 //60 + 10 = Fox -> 70
         vector<int> numbers = {stoi(words[0]), stoi(words[2])};
         string alteredOperation = isReversed ? operation : getOppositeOperation(operation);
         string result = calculateVariableAnswer(alteredOperation, numbers);
@@ -201,7 +201,7 @@ string calculateSolvableAnswer(string operation, vector<int>& numbers) {
         return to_string(numbers[0] * numbers[1]);
     } else if (operation == "/") {
         if (numbers[1] == 0) return "Error: Division by zero";
-        return to_string(static_cast<double>(numbers[0]) / numbers[1]);
+        return to_string(numbers[0] / numbers[1]);
     }
     return "Error: Calculation Error";
 }
@@ -214,7 +214,57 @@ string getOppositeOperation(string operation) {
     else { return operation; }
 }
 
-int main() {
-    languageTranslationInitialization();
-    return 0;
+void languageTranslationExampleCases() {
+    vector<string> testCases = {
+        // Example Case #1: Num op Var eq Num OR Num eq Var op Num
+        "60 = Fox + 10", "10 = Fox + 60", "60 = Fox - 10", "10 = Fox - 60",
+        "60 = Fox * 10", "10 = Fox * 60", "60 = Fox / 10", "10 = Fox / 60",
+        "60 + Fox = 10", "10 + Fox = 60", "60 - Fox = 10", "10 - Fox = 60",
+        "60 * Fox = 10", "10 * Fox = 60", "60 / Fox = 10", "10 / Fox = 60",
+        "-------------",
+
+        // Example Case #2: Var op Num eq Num OR Var eq Num op Num
+        "Fox = 60 + 10", "Fox = 10 + 60", "Fox = 60 - 10", "Fox = 10 - 60",
+        "Fox = 60 * 10", "Fox = 10 * 60", "Fox = 60 / 10", "Fox = 10 / 60",
+        "Fox + 60 = 10", "Fox + 10 = 60", "Fox - 60 = 10", "Fox - 10 = 60",
+        "Fox * 60 = 10", "Fox * 10 = 60", "Fox / 60 = 10", "Fox / 10 = 60",
+        "-------------",
+
+        // Example Case #3: Num op Num eq Var OR Num eq Num op Var
+        "10 = 60 + Fox", "60 = 10 + Fox", "10 = 60 - Fox", "60 = 10 - Fox",
+        "10 = 60 * Fox", "60 = 10 * Fox", "10 = 60 / Fox", "60 = 10 / Fox",
+        "10 + 60 = Fox", "60 + 10 = Fox", "10 - 60 = Fox", "60 - 10 = Fox",
+        "10 * 60 = Fox", "60 * 10 = Fox", "10 / 60 = Fox", "60 / 10 = Fox",
+        "-------------",
+
+        // Example Case #4: Num op Num eq Num OR Num eq Num op Num
+        "90 = 10 + 10", "90 = 80 + 10", "90 = 10 - 2", "90 = 100 - 10",
+        "90 * 10 = 10", "90 * 10 = 900", "90 / 10 = 20", "90 / 10 = 9"
+
+        // Example Case #5: Invalid Cases (Operators, Equal, Spaces)
+        "10 = 60 = Fox", "Fox = 10 = 60", "Fox = 60 = Fox", "Fox = 10 = Fox",
+        "10 + 60 + Fox", "Fox - 10 - 60", "Fox * 60 * Fox", "Fox / 10 / Fox",
+        "10   60   Fox", "Fox   10   60", "Fox   60   Fox", "Fox   10   Fox",
+        "10 * 6  = Fox", "60 * 1  =  Fox", "10 /  0 = Fox", " 0  / 10 = Fox",
+        "-------------",
+
+        // Example Case #6: Syntactically Valid, Unsolvable Cases
+        "Fox = Fox + 10", "Fox = Fox - 60", "Fox = Fox * 10", "Fox = Fox / 60",
+        "10 + Fox = Fox", "60 - Fox = Fox", "10 * Fox = Fox", "60 / Fox = Fox",
+        "Fox = Fox + Fox", "Fox = Fox - Fox", "Fox = Fox * Fox", "Fox = Fox / Fox",
+        "Fox + Fox = Fox", "Fox + Fox = Fox", "Fox - Fox = Fox", "Fox - Fox = Fox",
+        "-------------",
+
+        // Example Case #7: Testing Variable Regular Expressions
+        "_af_ = 60 + 10", "40 = kd90s - 10", "100 = k930 * 10", "10 = 9k / 1",
+        "0af + 10 = 40", "90 - 9gj = 10", "10 * _afe = 20", "__ / 90 = 9",
+    };
+
+    for (string testCase : testCases) {
+        cout << testCase << endl;
+        vector<string> words = languageTranslationSeparator(testCase);
+        vector<string> tokens = languageTranslationScanner(words);
+        languageTranslationParser(words, tokens);
+        cout << endl;
+    }
 }
