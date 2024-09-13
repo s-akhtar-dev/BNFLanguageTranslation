@@ -12,38 +12,29 @@
 #include <regex>
 using namespace std;
 
-//
 void languageTranslationInitialization();
 
-//
 vector<string> languageTranslationSeparator(const string& statement);
 vector<string> languageTranslationScanner(const vector<string>& words);
 
-//
 void languageTranslationParser(const vector<string>& words, const vector<string>& tokens);
 void languageTranslationSolvableParser(const vector<string>& words, const vector<string>& tokens, bool isReversed);
 
-//
-string calculateVariableAnswer(string operation, vector<int>& numbers);
-string calculateSolvableAnswer(string operation, vector<int>& numbers);
-string calculateUniqueInstance(string operation, vector<int>& numbers, bool isReversed);
-
-//
 bool isValidateRegexNumber(const string& integerStatement);
 bool isValidateRegexVariable(const string& variableStatement);
 bool isValidateRegexOperator(const string& operatorStatement);
 
-//
 string getOppositeOperation(string operation);
 void languageTranslationExampleCases();
 
-//
+string calculateSolvableOutput(const string& operation, const string& firstNumber, const string& secondNumber);
+string getDifferentOperation(const string& operation);
+
 int main() {
     languageTranslationInitialization();
     return 0;
 }
 
-//
 void languageTranslationInitialization() {
     //Can use this to test example cases
     languageTranslationExampleCases();
@@ -64,7 +55,6 @@ void languageTranslationInitialization() {
     }
 }
 
-//
 vector<string> languageTranslationSeparator(const string& statement) {
     string word;
     int spaceCount = 0;
@@ -85,34 +75,26 @@ vector<string> languageTranslationSeparator(const string& statement) {
     return words;
 }
 
-//
 vector<string> languageTranslationScanner(const vector<string>& words) {
     vector<string> tokens;
 
     for (const string& word : words) {
-        if (isValidateRegexNumber(word)) {
-            tokens.emplace_back("number");
-        } else if (isValidateRegexVariable(word)) {
-            tokens.emplace_back("variable");
-        } else if (isValidateRegexOperator(word)) {
-            tokens.emplace_back("operator");
-        } else if (word == "=") {
-            tokens.emplace_back("equal");
-        } else {
-            return {"invalid"};
+        if (isValidateRegexNumber(word)) { tokens.emplace_back("number");
+        } else if (isValidateRegexVariable(word)) { tokens.emplace_back("variable");
+        } else if (isValidateRegexOperator(word)) { tokens.emplace_back("operator");
+        } else if (word == "=") { tokens.emplace_back("equal");
+        } else { return {"invalid"};
         }
     }
 
     return tokens;
 }
 
-//
 bool isValidateRegexNumber(const string& integerStatement) {
     regex validNumber("^[0-9]+$");
     return regex_match(integerStatement, validNumber);
 }
 
-//
 bool isValidateRegexVariable(const string& variableStatement) {
     regex validVariable("^[_a-zA-Z][_a-zA-Z0-9]*$");
     return regex_match(variableStatement, validVariable);
@@ -124,7 +106,6 @@ bool isValidateRegexOperator(const string& operatorStatement) {
     return regex_match(operatorStatement, validOperator);
 }
 
-//
 void languageTranslationParser(const vector<string>& words, const vector<string>& tokens) {
     if (tokens.size() != 5) {
         cout << "Syntax Error: Invalid regular expression" << endl;
@@ -146,94 +127,72 @@ void languageTranslationParser(const vector<string>& words, const vector<string>
     languageTranslationSolvableParser(words, tokens, isReversed);
 }
 
-//
 void languageTranslationSolvableParser(const vector<string>& words, const vector<string>& tokens, bool isReversed) {
-    string operation = isReversed ? words[3] : words[1];
+    string operation = ((isReversed) ? (words.at(3)) : (words.at(1)));
+    const string& firstNumber = words.at(0);
+    const string& secondNumber = words.at(2);
+    const string& thirdNumber = words.at(4);
+    string calcResult;
 
-    if (tokens[0] == "number" && tokens[2] == "number" && tokens[4] == "number") {
-        vector<int> numbers = {stoi(words[isReversed ? 2 : 0]), stoi(words[isReversed ? 4 : 2])};
-        string result = calculateSolvableAnswer(operation, numbers);
-        cout << (result == words[isReversed ? 0 : 4] ? "True Statement" : "Invalid Statement") << endl;
+    if (tokens.at(0) == "number" && tokens.at(2) == "number" && tokens.at(4) == "number") {
+        if (isReversed) {
+            calcResult = calculateSolvableOutput(operation, secondNumber, thirdNumber);
+            cout << (stoi(calcResult) == stoi(firstNumber) ? "True Statement" : "Invalid Statement") << endl;
+        } else {
+            calcResult = calculateSolvableOutput(operation, firstNumber, secondNumber);
+            cout << (stoi(calcResult) == stoi(thirdNumber) ? "True Statement" : "Invalid Statement") << endl;
+        }
 
-    } else if (tokens[0] == "variable" && tokens[2] == "number" && tokens[4] == "number") {
-        vector<int> numbers = {stoi(words[isReversed ? 2 : 4]), stoi(words[isReversed ? 4 : 2])};
-        string alteredOperation = isReversed ? getOppositeOperation(operation) : operation;
-        string result = calculateVariableAnswer(alteredOperation, numbers);
-        cout << words[0] << " is " << result << endl;
+    } else if (tokens.at(0) == "variable" && tokens.at(2) == "number" && tokens.at(4) == "number") {
+        if (!isReversed && (operation == "+" || operation == "*")) {
+            calcResult = calculateSolvableOutput(getDifferentOperation(operation), thirdNumber, secondNumber);
+        } else if (!isReversed && (operation == "-" || operation == "/")) {
+            calcResult = calculateSolvableOutput(getDifferentOperation(operation), secondNumber, thirdNumber);
+        } else if (isReversed && (operation == "+" || operation == "*")) {
+            calcResult = calculateSolvableOutput(operation, thirdNumber, secondNumber);
+        } else {
+            calcResult = calculateSolvableOutput(operation, secondNumber, thirdNumber);
+        }
+        cout << firstNumber << " is " << calcResult << endl;
 
-    } else if (tokens[0] == "number" && tokens[2] == "variable" && tokens[4] == "number") {
-        vector<int> numbers = {stoi(words[0]), stoi(words[4])};
-        string result = calculateUniqueInstance(operation, numbers, isReversed);
-        cout << words[2] << " is " << result << endl;
+    } else if (tokens.at(0) == "number" && tokens.at(2) == "variable" && tokens.at(4) == "number") {
+        if ((!isReversed && (operation == "+" || operation == "*")) || (isReversed && (operation == "-" || operation == "/"))) {
+            calcResult = calculateSolvableOutput(getDifferentOperation(operation), thirdNumber, firstNumber);
+        } else if ((isReversed && (operation == "+" || operation == "*"))) {
+            calcResult = calculateSolvableOutput(getDifferentOperation(operation), firstNumber, thirdNumber);
+        } else {
+            calcResult = calculateSolvableOutput(operation, firstNumber, thirdNumber);
+        }
+        cout << secondNumber << " is " << calcResult << endl;
 
-    } else if (tokens[0] == "number" && tokens[2] == "number" && tokens[4] == "variable") {
-        vector<int> numbers = {stoi(words[0]), stoi(words[2])};
-        string alteredOperation = isReversed ? operation : getOppositeOperation(operation);
-        string result = calculateVariableAnswer(alteredOperation, numbers);
-        cout << words[4] << " is " << result << endl;
+    } else if (tokens.at(0) == "number" && tokens.at(2) == "number" && tokens.at(4) == "variable") {
+        if (!isReversed && ((operation == "+" || operation == "*") || (operation == "-" || operation == "/"))) {
+            calcResult = calculateSolvableOutput(operation, firstNumber, secondNumber);
+        } else if (isReversed && (operation == "-" || operation == "/")) {
+            calcResult = calculateSolvableOutput(operation, secondNumber, firstNumber);
+        } else {
+            calcResult = calculateSolvableOutput(getDifferentOperation(operation), firstNumber, secondNumber);
+        }
+        cout << thirdNumber << " is " << calcResult << endl;
 
     } else {
         cout << "Unsolvable" << endl;
     }
 }
 
-//
-string calculateVariableAnswer(string operation, vector<int>& numbers) {
-    if (operation == "+") {
-        return to_string(numbers[0] - numbers[1]);
-    } else if (operation == "-") {
-        return to_string(numbers[0] + numbers[1]);
-    } else if (operation == "*") {
-        if (numbers[1] == 0) return "Error: Division by zero";
-        return to_string(static_cast<double>(numbers[0]) / numbers[1]);
-    } else if (operation == "/") {
-        if (numbers[0] == 0) return "Error: Division by zero";
-        return to_string(numbers[0] * numbers[1]);
-    }
-    return "Error: Calculation Error";
+string calculateSolvableOutput(const string& operation, const string& firstNumber, const string& secondNumber) {
+    if (operation == "+") { return to_string(stoi(firstNumber) + stoi(secondNumber)); }
+    if (operation == "-") { return to_string(stoi(firstNumber) - stoi(secondNumber)); }
+    if (operation == "*") { return to_string(stoi(firstNumber) * stoi(secondNumber)); }
+    if (operation == "/") { return to_string(stod(firstNumber) / stod(secondNumber)); }
+    return firstNumber;
 }
 
-//
-string calculateUniqueInstance(string operation, vector<int>& numbers, bool isReversed) {
-    if (operation == "+") {
-        return to_string(!isReversed ? numbers[1] - numbers[0] : numbers[0] - numbers[1]);
-    } else if (operation == "-") {
-        return to_string(!isReversed ? numbers[0] - numbers[1] : numbers[0] + numbers[1]);
-    } else if (operation == "*") {
-        if (numbers[1] == 0) return "Error: Division by zero";
-        return to_string(!isReversed ? static_cast<double>(numbers[1]) / numbers[0] : static_cast<double>(numbers[0]) / numbers[1]);
-    } else if (operation == "/") {
-        if (numbers[0] == 0) return "Error: Division by zero";
-        return to_string(!isReversed ? static_cast<double>(numbers[0]) / numbers[1] : static_cast<double>(numbers[0]) * numbers[1]);
-    }
-    return "Error: Calculation Error";
+string getDifferentOperation(const string& operation) {
+    static const unordered_map<string, string> opMap = {{"+", "-"}, {"-", "+"}, {"*", "/"}, {"/", "*"}};
+    return opMap.count(operation) ? opMap.at(operation) : operation;
 }
 
-//
-string calculateSolvableAnswer(string operation, vector<int>& numbers) {
-    if (operation == "+") {
-        return to_string(numbers[0] + numbers[1]);
-    } else if (operation == "-") {
-        return to_string(numbers[0] - numbers[1]);
-    } else if (operation == "*") {
-        return to_string(numbers[0] * numbers[1]);
-    } else if (operation == "/") {
-        if (numbers[1] == 0) return "Error: Division by zero";
-        return to_string(numbers[0] / numbers[1]);
-    }
-    return "Error: Calculation Error";
-}
-
-//
-string getOppositeOperation(string operation) {
-    if (operation == "+") { return "-"; }
-    else if (operation == "-") { return "+"; }
-    else if (operation == "*") { return "/"; }
-    else if (operation == "/") { return "*"; }
-    else { return operation; }
-}
-
-//
 void languageTranslationExampleCases() {
     vector<string> testCases = {
         // Example Case #1: Num op Var eq Num OR Num eq Var op Num
