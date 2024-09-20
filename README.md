@@ -1,5 +1,5 @@
 # Language Translation: Backus-Naur Form (BNF) Evaluator
-This project is an implementation of a BNF (Backus-Naur Form) evaluator designed to parse and evaluate mathematical expressions based on user input. The evaluator checks for syntactical correctness and performs calculations on valid expressions. Made by Sarah Akhtar with Kieran Monks.
+This project is an implementation of a BNF (Backus-Naur Form) expression evaluator designed to parse and evaluate mathematical expressions based on user input. The evaluator checks for syntactical correctness and performs calculations on valid expressions. Made by Sarah Akhtar with Kieran Monks.
 
 ## Purpose
 The primary purpose of this program is to characterize BNF statements and evaluate mathematical expressions input by the user. It utilizes regular expressions to validate the syntax of numbers, variables, and operators.
